@@ -1,61 +1,149 @@
-# template-for-proposals
+# `ArrayBuffer.prototype.transfer` and friends
 
-A repository template for ECMAScript proposals.
+Stage: 2
 
-## Before creating a proposal
+Author: Shu-yu Guo (@syg)
 
-Please ensure the following:
-  1. You have read the [process document](https://tc39.github.io/process-document/)
-  1. You have reviewed the [existing proposals](https://github.com/tc39/proposals/)
-  1. You are aware that your proposal requires being a member of TC39, or locating a TC39 delegate to "champion" your proposal
+Champion: Shu-yu Guo (@syg) et al.
 
-## Create your proposal repo
+## Introduction
 
-Follow these steps:
-  1. Click the green ["use this template"](https://github.com/tc39/template-for-proposals/generate) button in the repo header. (Note: Do not fork this repo in GitHub's web interface, as that will later prevent transfer into the TC39 organization)
-  1. Update the biblio to the latest version: `npm install --save-dev --save-exact @tc39/ecma262-biblio@latest`.
-  1. Go to your repo settings “Options” page, under “GitHub Pages”, and set the source to the **main branch** under the root (and click Save, if it does not autosave this setting)
-      1. check "Enforce HTTPS"
-      1. On "Options", under "Features", Ensure "Issues" is checked, and disable "Wiki", and "Projects" (unless you intend to use Projects)
-      1. Under "Merge button", check "automatically delete head branches"
-<!--
-  1. Avoid merge conflicts with build process output files by running:
-      ```sh
-      git config --local --add merge.output.driver true
-      git config --local --add merge.output.driver true
-      ```
-  1. Add a post-rewrite git hook to auto-rebuild the output on every commit:
-      ```sh
-      cp hooks/post-rewrite .git/hooks/post-rewrite
-      chmod +x .git/hooks/post-rewrite
-      ```
--->
-  3. ["How to write a good explainer"][explainer] explains how to make a good first impression.
+`ArrayBuffer`s may be transferred and detached by HTML's serialization algorithms, but there lacks a programmatic JS API for the same expressivity. A programmatic API is useful for programming patterns such as transferring ownership of `ArrayBuffer`s, optimized reallocations (i.e. `realloc` semantics), and fixing resizable `ArrayBuffer`s into fixed-length ones. This proposal fills out this expressivity by adding new methods to `ArrayBuffer.prototype`.
 
-      > Each TC39 proposal should have a `README.md` file which explains the purpose
-      > of the proposal and its shape at a high level.
-      >
-      > ...
-      >
-      > The rest of this page can be used as a template ...
-
-      Your explainer can point readers to the `index.html` generated from `spec.emu`
-      via markdown like
-
-      ```markdown
-      You can browse the [ecmarkup output](https://ACCOUNT.github.io/PROJECT/)
-      or browse the [source](https://github.com/ACCOUNT/PROJECT/blob/HEAD/spec.emu).
-      ```
-
-      where *ACCOUNT* and *PROJECT* are the first two path elements in your project's Github URL.
-      For example, for github.com/**tc39**/**template-for-proposals**, *ACCOUNT* is "tc39"
-      and *PROJECT* is "template-for-proposals".
+This proposal is spun out of the [resizable buffers proposal](https://github.com/tc39/proposal-resizablearraybuffer/issues/113). At the time of spinng out, resizable buffers was Stage 3, and this proposal is demoted to Stage 2.
 
 
-## Maintain your proposal repo
+## API
 
-  1. Make your changes to `spec.emu` (ecmarkup uses HTML syntax, but is not HTML, so I strongly suggest not naming it ".html")
-  1. Any commit that makes meaningful changes to the spec, should run `npm run build` and commit the resulting output.
-  1. Whenever you update `ecmarkup`, run `npm run build` and commit any changes that come from that dependency.
+```javascript
+class ArrayBuffer {
+  // ... existing stuff
 
-  [explainer]: https://github.com/tc39/how-we-work/blob/HEAD/explainer.md
+  // Returns a new ArrayBuffer with the same byte content
+  // as this buffer for [0, min(this.byteLength, newByteLength)],
+  // then detaches this buffer.
+  //
+  // The maximum byte length and thus the resizability of this buffer
+  // is preserved in the new ArrayBuffer.
+  //
+  // Any new memory is zeroed.
+  //
+  // If newByteLength is undefined, it is set to this.bytelength.
+  //
+  // Designed to be implementable as a copy-free move or a realloc.
+  //
+  // Throws a RangeError unless all of the following are satisfied:
+  // - 0 <= newByteLength
+  // - If this buffer is resizable, newByteLength <= this.maxByteLength
+  transfer(newByteLength);
+
+  // Like transfer, except always returns a non-resizable ArrayBuffer.
+  fix(newByteLength);
+
+  // Returns whether this ArrayBuffer is detached.
+  get detached();
+}
+```
+
+## Motivation and use cases
+
+### Ownership
+
+A "move and detach original `ArrayBuffer`" method can be used to implement ownership semantics when working with `ArrayBuffer`s. This is useful in many situations, such as disallowing other users from modifying a buffer when writing into it.
+
+For example, consider the following example from @domenic from the original transfer proposal:
+
+```javascript
+function validateAndWrite(arrayBuffer) {
+  // Do some asynchronous validation.
+  await validate(arrayBuffer);
+
+  // Assuming we've got here, it's valid; write it to disk.
+  await fs.writeFile("data.bin", arrayBuffer);
+}
+
+const data = new Uint8Array([0x01, 0x02, 0x03]);
+validateAndWrite(data.buffer);
+setTimeout(() => {
+  data[0] = data[1] = data[2] = 0x00;
+}, 50);
+```
+
+Depending on the time taken for `await validate(arrayBuffer)`, the validation result may be stale due to the callback passed to `setTimeout`. A defensive approach would copy the input first, but this is markedly less performance:
+
+```javascript
+function validateAndWriteSafeButSlow(arrayBuffer) {
+  // Copy first!
+  const copy = arrayBuffer.slice();
+
+  await validate(copy);
+  await fs.writeFile("data.bin", copy);
+}
+```
+
+With `transfer`, the ownership transfer can be succinctly expressed:
+
+```javascript
+function validateAndWriteSafeAndFast(arrayBuffer) {
+  // Transfer to take ownership, which implementations can choose to
+  // implement as a zero-copy move.
+  const owned = arrayBuffer.transfer();
+
+  // arrayBuffer is detached after this point.
+  assert(arrayBuffer.detached);
+
+  await validate(owned);
+  await fs.writeFile("data.bin", owned);
+}
+```
+
+### Realloc
+
+The same `transfer` API, when passing a `newByteLength` argument, can double to have the same expressivity as [`realloc`](https://en.cppreference.com/w/c/memory/realloc). Operating systems often implement `realloc` more efficiently than a copy.
+
+### Fixing resizable buffers to be fixed-length
+
+The `fix` method is a variant of `transfer` that always returns a fixed-length `ArrayBuffer`. This is useful in cases when the new buffer no longers needs resizability, allowing implementations to free up virtual memory if resizable buffers were implemented in-place (i.e. address space is reserved up front).
+
+### Checking detachedness
+
+Owing to [messy history](https://esdiscuss.org/topic/arraybuffer-neutering) of TypedArray and `ArrayBuffer` standardization, and preservation of web compatibility, TypedArray views on detached buffers throw for some operations (e.g. prototype methods), and return sentinel values (`0` or `undefined`) for others (e.g. indexed access and length).
+
+The `detached` getter is added to authoritatively determine whether an `ArrayBuffer` is detached.
+
+## FAQ and design rationale tradeoffs
+
+### Why does both `transfer` and `fix` exist instead of a single, more flexible method?
+
+Most folks seem to have the intuition that the move semantics, being the primary use case, ought to preserve resizability. Transferring `ArrayBuffer`s in HTML serialization preserves resizability, and symmetry with that is good for intuition.
+
+A flexible `transfer` also complicates the API design for a more minority use case, thus the separate `fix` method.
+
+### Why can't I pass a new `maxByteLength` to `transfer`?
+
+One of the goals of `transfer`, in addition to detach semantics, is to be more efficiently implementable than a copy in user code. It is not clear to the author that for resizable buffers implemented in-place, reallocation of the virtual memory pages is possible and efficient on all popular operating systems.
+
+And besides it adds complexity in service of a more minority use case. Resizable buffers ought to be allocated with sufficient maximum size from the start.
+
+### If performance is the goal, why add new methods instead of implementing copy-on-write (CoW) as a transparent optimization?
+
+In a word, security.
+
+`ArrayBuffer`s are a very popular attack vector for exploiting JavaScript engines. An important security mitigation engines employ is to ensure the `ArrayBuffer`'s data pointer is constant and does not move. For this same reason, resizable buffers are specified to allow in-place implementation.
+
+CoW `ArrayBuffer`s may be implemented by moving the data pointer. When the CoW `ArrayBuffer` is modified, new memory is allocated and the backing store is updated. However, this conflicts with the security mitigation.
+
+It is possible to both implement copy-on-write `ArrayBuffer`s and keep the "fixed data pointer" security mitigation only with additional help from the underlying operating system: by mapping new virtual memory that is marked as CoW and initially point to the same physical pages as the source buffer. This technique is, however, not portable.
+
+At this time, Google Chrome deems this mitigation important enough for security to not implement CoW `ArrayBuffer`s.
+
+## Open questions
+
+### Do we really need `fix`?
+
+Feels nice to round out the expressivity, but granted the use case here isn't as compelling as `transfer`.
+
+## History and acknowledgment
+
+Thanks to:
+  - @domenic for https://github.com/domenic/proposal-arraybuffer-transfer
