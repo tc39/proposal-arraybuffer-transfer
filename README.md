@@ -113,7 +113,7 @@ The `detached` getter is added to authoritatively determine whether an `ArrayBuf
 
 ## FAQ and design rationale tradeoffs
 
-### Why does both `transfer` and `fix` exist instead of a single, more flexible method?
+### Why do both `transfer` and `fix` exist instead of a single, more flexible method?
 
 Most folks seem to have the intuition that the move semantics, being the primary use case, ought to preserve resizability. Transferring `ArrayBuffer`s in HTML serialization preserves resizability, and symmetry with that is good for intuition.
 
