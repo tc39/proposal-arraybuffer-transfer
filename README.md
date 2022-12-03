@@ -111,6 +111,24 @@ Owing to [messy history](https://esdiscuss.org/topic/arraybuffer-neutering) of T
 
 The `detached` getter is added to authoritatively determine whether an `ArrayBuffer` is detached.
 
+Currently, there isn't any performant way of detecting whether an `ArrayBuffer` is detached or not. The following implementation is an example of how the detachness can be detected, but has some flaws in V8: Functions with try catch blocks are not inlined in V8. Referencing [Node internal comment](https://github.com/nodejs/node/blob/main/lib/querystring.js#L472).
+
+```javascript
+const assert = require('node:assert')
+
+function isBufferDetached(buffer) {
+  if (buffer.byteLength === 0) {
+    try {
+      new Uint8Array(buffer);
+    } catch (error) {
+      assert(error.name === 'TypeError');
+      return true;
+    }
+  }
+  return false
+}
+```
+
 ## FAQ and design rationale tradeoffs
 
 ### Why do both `transfer` and `fix` exist instead of a single, more flexible method?
@@ -136,6 +154,12 @@ CoW `ArrayBuffer`s may be implemented by moving the data pointer. When the CoW `
 It is possible to both implement copy-on-write `ArrayBuffer`s and keep the "fixed data pointer" security mitigation only with additional help from the underlying operating system: by mapping new virtual memory that is marked as CoW and initially point to the same physical pages as the source buffer. This technique is, however, not portable.
 
 At this time, Google Chrome deems this mitigation important enough for security to not implement CoW `ArrayBuffer`s.
+
+### How is `get detached()` is used in browsers and in runtimes?
+
+- Node.js [discussed adding a public API](https://github.com/nodejs/node/pull/45512) for `get detached()`
+- WebKit has [`isDetached`](https://github.com/WebKit/WebKit/blob/6545977030f491dd87b3ae9fd666f6b949ae8a74/Source/JavaScriptCore/runtime/ArrayBuffer.h#L308) in internal `ArrayBuffer` class
+- V8 added [`v8::ArrayBuffer::WasDetached`](https://github.com/v8/v8/commit/9df5ef70ff18977b157028fc55ced5af4bcee535) which was later [backported to Node.js](https://github.com/nodejs/node/pull/45568) and used in Node webstreams.
 
 ## Open questions
 
