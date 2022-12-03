@@ -4,7 +4,7 @@ Stage: 2
 
 Author: Shu-yu Guo (@syg)
 
-Champion: Shu-yu Guo (@syg) et al.
+Champion: Shu-yu Guo (@syg), Jordan Harband (@ljharb), Yagiz Nizipli (@anonrig)
 
 ## Introduction
 
@@ -146,4 +146,4 @@ Feels nice to round out the expressivity, but granted the use case here isn't as
 ## History and acknowledgment
 
 Thanks to:
-  - @domenic for https://github.com/domenic/proposal-arraybuffer-transfer
+  - @domenic for https://github.com/domenic/proposal-arraybuffer-transfer/tree/HEAD~1
