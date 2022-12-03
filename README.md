@@ -155,7 +155,7 @@ It is possible to both implement copy-on-write `ArrayBuffer`s and keep the "fixe
 
 At this time, Google Chrome deems this mitigation important enough for security to not implement CoW `ArrayBuffer`s.
 
-### How is `get detached()` is used in browsers and in runtimes?
+### How is `get detached()` used in browsers and in runtimes?
 
 - Node.js [discussed adding a public API](https://github.com/nodejs/node/pull/45512) for `get detached()`
 - WebKit has [`isDetached`](https://github.com/WebKit/WebKit/blob/6545977030f491dd87b3ae9fd666f6b949ae8a74/Source/JavaScriptCore/runtime/ArrayBuffer.h#L308) in internal `ArrayBuffer` class
