@@ -10,7 +10,7 @@ Champion: Shu-yu Guo (@syg), Jordan Harband (@ljharb), Yagiz Nizipli (@anonrig)
 
 `ArrayBuffer`s may be transferred and detached by HTML's serialization algorithms, but there lacks a programmatic JS API for the same expressivity. A programmatic API is useful for programming patterns such as transferring ownership of `ArrayBuffer`s, optimized reallocations (i.e. `realloc` semantics), and fixing resizable `ArrayBuffer`s into fixed-length ones. This proposal fills out this expressivity by adding new methods to `ArrayBuffer.prototype`.
 
-This proposal is spun out of the [resizable buffers proposal](https://github.com/tc39/proposal-resizablearraybuffer/issues/113). At the time of spinng out, resizable buffers was Stage 3, and this proposal is demoted to Stage 2.
+This proposal is spun out of the [resizable buffers proposal](https://github.com/tc39/proposal-resizablearraybuffer/issues/113). At the time of spinning out, resizable buffers was Stage 3, and this proposal was demoted to Stage 2.
 
 
 ## API
@@ -69,7 +69,7 @@ setTimeout(() => {
 }, 50);
 ```
 
-Depending on the time taken for `await validate(arrayBuffer)`, the validation result may be stale due to the callback passed to `setTimeout`. A defensive approach would copy the input first, but this is markedly less performance:
+Depending on the time taken for `await validate(arrayBuffer)`, the validation result may be stale due to the callback passed to `setTimeout`. A defensive approach would copy the input first, but this is markedly less performant:
 
 ```javascript
 function validateAndWriteSafeButSlow(arrayBuffer) {
@@ -107,11 +107,11 @@ The `fix` method is a variant of `transfer` that always returns a fixed-length `
 
 ### Checking detachedness
 
-Owing to [messy history](https://esdiscuss.org/topic/arraybuffer-neutering) of TypedArray and `ArrayBuffer` standardization, and preservation of web compatibility, TypedArray views on detached buffers throw for some operations (e.g. prototype methods), and return sentinel values (`0` or `undefined`) for others (e.g. indexed access and length).
+Owing to the [messy history](https://esdiscuss.org/topic/arraybuffer-neutering) of TypedArray and `ArrayBuffer` standardization, and preservation of web compatibility, TypedArray views on detached buffers throw for some operations (e.g. prototype methods), and return sentinel values (`0` or `undefined`) for others (e.g. indexed access and length).
 
 The `detached` getter is added to authoritatively determine whether an `ArrayBuffer` is detached.
 
-Currently, there isn't any performant way of detecting whether an `ArrayBuffer` is detached or not. The following implementation is an example of how the detachness can be detected, but has some flaws in V8: Functions with try catch blocks are not inlined in V8. Referencing [Node internal comment](https://github.com/nodejs/node/blob/main/lib/querystring.js#L472).
+Currently, there isn't any performant way of detecting whether an `ArrayBuffer` is detached. The following implementation is an example of how the detachedness can be detected, but has some flaws in V8: functions with try catch blocks are not inlined in V8. See also [this Node internal comment](https://github.com/nodejs/node/blob/main/lib/querystring.js#L472).
 
 ```javascript
 const assert = require('node:assert')
