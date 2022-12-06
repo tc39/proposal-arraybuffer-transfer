@@ -161,6 +161,14 @@ At this time, Google Chrome deems this mitigation important enough for security 
 - WebKit has [`isDetached`](https://github.com/WebKit/WebKit/blob/6545977030f491dd87b3ae9fd666f6b949ae8a74/Source/JavaScriptCore/runtime/ArrayBuffer.h#L308) in internal `ArrayBuffer` class
 - V8 added [`v8::ArrayBuffer::WasDetached`](https://github.com/v8/v8/commit/9df5ef70ff18977b157028fc55ced5af4bcee535) which was later [backported to Node.js](https://github.com/nodejs/node/pull/45568) and used in Node webstreams.
 
+### How is `transfer` used in browsers and in runtimes?
+
+Most browsers use `detach()` as the name for detaching `ArrayBuffer`s.
+
+- V8 has `Detach()` as [`v8::ArrayBuffer::Detach()`](https://v8docs.nodesource.com/node-18.2/d5/d6e/classv8_1_1_array_buffer.html#abb7a2b60240651d16e17d02eb6f636cf)
+ - WebKit has [`void detach()`](https://github.com/WebKit/WebKit/blob/6545977030f491dd87b3ae9fd666f6b949ae8a74/Source/JavaScriptCore/runtime/ArrayBuffer.h#L307)
+ - Node.js [has an internal implementation](https://github.com/nodejs/node/blob/22c645d411b7cba9e7b0d578a3e7108147a5d89e/lib/internal/webstreams/util.js#L131) to support detaching internal buffers called `transferArrayBuffer`, and used in Node webstream.
+
 ## Open questions
 
 ### Do we really need `fix`?
