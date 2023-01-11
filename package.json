@@ -1,16 +1,16 @@
 {
   "private": true,
-  "name": "template-for-proposals",
-  "description": "A repository template for ECMAScript proposals.",
+  "name": "proposal-arraybuffer-transfer",
+  "description": "ArrayBuffer.prototype.transfer and friends",
   "scripts": {
     "start": "npm run build-loose -- --watch",
     "build": "npm run build-loose -- --strict",
-    "build-loose": "ecmarkup --load-biblio @tc39/ecma262-biblio --verbose spec.emu index.html --lint-spec"
+    "build-loose": "node -e 'fs.mkdirSync(\"build\", { recursive: true })' && ecmarkup --load-biblio @tc39/ecma262-biblio --load-biblio ./resizable-buffer-biblio.json --verbose spec.emu build/index.html --lint-spec"
   },
-  "homepage": "https://github.com/tc39/template-for-proposals#readme",
+  "homepage": "https://github.com/tc39/proposal-arraybuffer-transfer",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tc39/template-for-proposals.git"
+    "url": "git+https://github.com/tc39/proposal-arraybuffer-transfer.git"
   },
   "license": "MIT",
   "devDependencies": {
