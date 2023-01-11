@@ -1,6 +1,6 @@
-name: Deploy spec
+name: Build spec
 
-on: [push]
+on: pull_request
 
 jobs:
   build:
@@ -8,12 +8,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - uses: actions/setup-node@v3
       with:
-        node-version: '12.x'
+        node-version: 16
     - run: npm install
     - run: npm run build
-    - name: commit changes
-      uses: elstudio/actions-js-build/commit@v3
-      with:
-        commitMessage: "fixup: [spec] `npm run build`"
