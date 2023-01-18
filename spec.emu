@@ -13,19 +13,20 @@ copyright: false
 markEffects: true
 </pre>
 
-<emu-clause id="sec-new-abstract-operations-for-arraybuffer-objects">
-  <h1>New Abstract Operations for ArrayBuffer Objects</h1>
+<emu-clause id="sec-new-abstract-operations-for-arraybuffer-objects" number="25.1.2">
+  <h1>Abstract Operations for ArrayBuffer Objects</h1>
 
-  <emu-clause id="sec-arraybuffercopyanddetach" type="abstract operation">
-    <h1>
+  <emu-clause id="sec-arraybuffercopyanddetach" type="abstract operation" number="14">
+    <h1><ins>
       ArrayBufferCopyAndDetach(
         _arrayBuffer_: an ArrayBuffer,
         _newLength_: an ECMAScript language value,
         _preserveResizability_: ~preserve-resizability~ or ~fixed-length~
       ): either a normal completion containing an ArrayBuffer or a throw completion
-    </h1>
+      </ins></h1>
     <dl class="header">
     </dl>
+    <ins>
     <emu-alg>
       1. Perform ? RequireInternalSlot(_arrayBuffer_, [[ArrayBufferData]]).
       1. If IsSharedArrayBuffer(_arrayBuffer_) is *true*, throw a *TypeError* exception.
@@ -49,22 +50,25 @@ markEffects: true
       1. NOTE: This will throw if _arrayBuffer_.[[ArrayBufferDetachKey]] is not undefined. The new ArrayBuffer is not yet observable at this point. If an implementation chooses to copy, it is free to check _arrayBuffer_.[[ArrayBufferDetachKey]] and throw before performing the copy in step <emu-xref href="#step-transfer-copy-bytes"></emu-xref>.
       1. Return _newBuffer_.
     </emu-alg>
+    </ins>
   </emu-clause>
 </emu-clause>
 
-<emu-clause id="sec-new-properties-of-the-arraybuffer-prototype-object">
-  <h1>New Properties of the ArrayBuffer Prototype Object</h1>
+<emu-clause id="sec-new-properties-of-the-arraybuffer-prototype-object" number="25.1.5">
+  <h1>Properties of the ArrayBuffer Prototype Object</h1>
 
-  <emu-clause id="sec-arraybuffer.prototype.transfer">
-    <h1>ArrayBuffer.prototype.transfer ( [ _newLength_ ] )</h1>
-    <p>This method performs the following steps when called:</p>
+  <emu-clause id="sec-get-arraybuffer.prototype.detached" number="4">
+    <h1>get ArrayBuffer.prototype.detached</h1>
+    <p>`ArrayBuffer.prototype.detached` is an accessor property whose set accessor function is *undefined*. Its get accessor function performs the following steps:</p>
     <emu-alg>
       1. Let _O_ be the *this* value.
-      1. Return ? ArrayBufferCopyAndDetach(_O_, _newLength_, ~preserve-resizability~).
+      1. Perform ? RequireInternalSlot(_O_, [[ArrayBufferData]]).
+      1. If IsSharedArrayBuffer(_O_) is *true*, throw a *TypeError* exception.
+      1. Return IsDetachedBuffer(_O_).
     </emu-alg>
   </emu-clause>
 
-  <emu-clause id="sec-arraybuffer.prototype.fix">
+  <emu-clause id="sec-arraybuffer.prototype.fix" number="5">
     <h1>ArrayBuffer.prototype.fix ( [ _newLength_ ] )</h1>
     <p>This method performs the following steps when called:</p>
     <emu-alg>
@@ -73,14 +77,12 @@ markEffects: true
     </emu-alg>
   </emu-clause>
 
-  <emu-clause id="sec-get-arraybuffer.prototype.detached">
-    <h1>get ArrayBuffer.prototype.detached</h1>
-    <p>`ArrayBuffer.prototype.detached` is an accessor property whose set accessor function is *undefined*. Its get accessor function performs the following steps:</p>
+  <emu-clause id="sec-arraybuffer.prototype.transfer" number="6">
+    <h1>ArrayBuffer.prototype.transfer ( [ _newLength_ ] )</h1>
+    <p>This method performs the following steps when called:</p>
     <emu-alg>
       1. Let _O_ be the *this* value.
-      1. Perform ? RequireInternalSlot(_O_, [[ArrayBufferData]]).
-      1. If IsSharedArrayBuffer(_O_) is *true*, throw a *TypeError* exception.
-      1. Return IsDetachedBuffer(_O_).
+      1. Return ? ArrayBufferCopyAndDetach(_O_, _newLength_, ~preserve-resizability~).
     </emu-alg>
   </emu-clause>
 </emu-clause>
