@@ -67,21 +67,21 @@ markEffects: true
     </emu-alg>
   </emu-clause>
 
-  <emu-clause id="sec-arraybuffer.prototype.fix" number="5">
-    <h1>ArrayBuffer.prototype.fix ( [ _newLength_ ] )</h1>
-    <p>This method performs the following steps when called:</p>
-    <emu-alg>
-      1. Let _O_ be the *this* value.
-      1. Return ? ArrayBufferCopyAndDetach(_O_, _newLength_, ~fixed-length~).
-    </emu-alg>
-  </emu-clause>
-
-  <emu-clause id="sec-arraybuffer.prototype.transfer" number="6">
+  <emu-clause id="sec-arraybuffer.prototype.transfer" number="5">
     <h1>ArrayBuffer.prototype.transfer ( [ _newLength_ ] )</h1>
     <p>This method performs the following steps when called:</p>
     <emu-alg>
       1. Let _O_ be the *this* value.
       1. Return ? ArrayBufferCopyAndDetach(_O_, _newLength_, ~preserve-resizability~).
+    </emu-alg>
+  </emu-clause>
+
+  <emu-clause id="sec-arraybuffer.prototype.transfertofixedlength" number="6">
+    <h1>ArrayBuffer.prototype.transferToFixedLength ( [ _newLength_ ] )</h1>
+    <p>This method performs the following steps when called:</p>
+    <emu-alg>
+      1. Let _O_ be the *this* value.
+      1. Return ? ArrayBufferCopyAndDetach(_O_, _newLength_, ~fixed-length~).
     </emu-alg>
   </emu-clause>
 </emu-clause>

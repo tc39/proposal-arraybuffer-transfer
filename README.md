@@ -38,7 +38,7 @@ class ArrayBuffer {
   transfer(newByteLength);
 
   // Like transfer, except always returns a non-resizable ArrayBuffer.
-  fix(newByteLength);
+  transferToFixedLength(newByteLength);
 
   // Returns whether this ArrayBuffer is detached.
   get detached();
@@ -103,7 +103,7 @@ The same `transfer` API, when passing a `newByteLength` argument, can double to 
 
 ### Fixing resizable buffers to be fixed-length
 
-The `fix` method is a variant of `transfer` that always returns a fixed-length `ArrayBuffer`. This is useful in cases when the new buffer no longers needs resizability, allowing implementations to free up virtual memory if resizable buffers were implemented in-place (i.e. address space is reserved up front).
+The `transferToFixedLength` method is a variant of `transfer` that always returns a fixed-length `ArrayBuffer`. This is useful in cases when the new buffer no longers needs resizability, allowing implementations to free up virtual memory if resizable buffers were implemented in-place (i.e. address space is reserved up front).
 
 ### Checking detachedness
 
@@ -131,11 +131,11 @@ function isBufferDetached(buffer) {
 
 ## FAQ and design rationale tradeoffs
 
-### Why do both `transfer` and `fix` exist instead of a single, more flexible method?
+### Why do both `transfer` and `transferToFixedLength` exist instead of a single, more flexible method?
 
 Most folks seem to have the intuition that the move semantics, being the primary use case, ought to preserve resizability. Transferring `ArrayBuffer`s in HTML serialization preserves resizability, and symmetry with that is good for intuition.
 
-A flexible `transfer` also complicates the API design for a more minority use case, thus the separate `fix` method.
+A flexible `transfer` also complicates the API design for a more minority use case, thus the separate `transferToFixedLength` method.
 
 ### Why can't I pass a new `maxByteLength` to `transfer`?
 
@@ -171,7 +171,7 @@ Most browsers use `detach()` as the name for detaching `ArrayBuffer`s.
 
 ## Open questions
 
-### Do we really need `fix`?
+### Do we really need `transferToFixedLength`?
 
 Feels nice to round out the expressivity, but granted the use case here isn't as compelling as `transfer`.
 
