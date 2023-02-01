@@ -7,7 +7,7 @@
 title: ArrayBuffer transfer
 status: proposal
 stage: 3
-contributors: Shu-yu Guo
+contributors: Shu-yu Guo, Jordan Harband, Yagiz Nizipli
 location: https://github.com/tc39/proposal-arraybuffer-transfer
 copyright: false
 markEffects: true
@@ -19,7 +19,7 @@ markEffects: true
   <emu-clause id="sec-arraybuffercopyanddetach" type="abstract operation" number="14">
     <h1><ins>
       ArrayBufferCopyAndDetach(
-        _arrayBuffer_: an ArrayBuffer,
+        _arrayBuffer_: an ECMAScript language value,
         _newLength_: an ECMAScript language value,
         _preserveResizability_: ~preserve-resizability~ or ~fixed-length~
       ): either a normal completion containing an ArrayBuffer or a throw completion
