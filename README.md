@@ -1,6 +1,6 @@
 # `ArrayBuffer.prototype.transfer` and friends
 
-Stage: 2
+Stage: 3
 
 Author: Shu-yu Guo (@syg)
 
