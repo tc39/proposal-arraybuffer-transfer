@@ -30,11 +30,11 @@ markEffects: true
     <emu-alg>
       1. Perform ? RequireInternalSlot(_arrayBuffer_, [[ArrayBufferData]]).
       1. If IsSharedArrayBuffer(_arrayBuffer_) is *true*, throw a *TypeError* exception.
+      1. If IsDetachedBuffer(_arrayBuffer_) is *true*, throw a *TypeError* exception.
       1. If _newLength_ is *undefined*, then
         1. Let _newByteLength_ be _arrayBuffer_.[[ArrayBufferByteLength]].
       1. Else,
         1. Let _newByteLength_ be ? ToIndex(_newLength_).
-      1. If IsDetachedBuffer(_arrayBuffer_) is *true*, throw a *TypeError* exception.
       1. If _preserveResizability_ is ~preserve-resizability~ and IsResizableArrayBuffer(_arrayBuffer_) is *true*, then
         1. Let _newMaxByteLength_ be _arrayBuffer_.[[ArrayBufferMaxByteLength]].
       1. Else,
