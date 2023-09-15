@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <meta charset="utf8">
 <link rel="stylesheet" href="./spec.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/styles/github.min.css">
@@ -17,38 +17,38 @@ markEffects: true
   <h1>Abstract Operations for ArrayBuffer Objects</h1>
 
   <emu-clause id="sec-arraybuffercopyanddetach" type="abstract operation" number="14">
-    <h1><ins>
-      ArrayBufferCopyAndDetach(
+    <h1>
+      <ins>ArrayBufferCopyAndDetach (
         _arrayBuffer_: an ECMAScript language value,
         _newLength_: an ECMAScript language value,
-        _preserveResizability_: ~preserve-resizability~ or ~fixed-length~
-      ): either a normal completion containing an ArrayBuffer or a throw completion
-      </ins></h1>
+        _preserveResizability_: ~preserve-resizability~ or ~fixed-length~,
+      ): either a normal completion containing an ArrayBuffer or a throw completion</ins>
+    </h1>
     <dl class="header">
     </dl>
     <ins>
-    <emu-alg>
-      1. Perform ? RequireInternalSlot(_arrayBuffer_, [[ArrayBufferData]]).
-      1. If IsSharedArrayBuffer(_arrayBuffer_) is *true*, throw a *TypeError* exception.
-      1. If _newLength_ is *undefined*, then
-        1. Let _newByteLength_ be _arrayBuffer_.[[ArrayBufferByteLength]].
-      1. Else,
-        1. Let _newByteLength_ be ? ToIndex(_newLength_).
-      1. If IsDetachedBuffer(_arrayBuffer_) is *true*, throw a *TypeError* exception.
-      1. If _preserveResizability_ is ~preserve-resizability~ and IsResizableArrayBuffer(_arrayBuffer_) is *true*, then
-        1. Let _newMaxByteLength_ be _arrayBuffer_.[[ArrayBufferMaxByteLength]].
-      1. Else,
-        1. Let _newMaxByteLength_ be ~empty~.
-      1. If _arrayBuffer_.[[ArrayBufferDetachKey]] is not *undefined*, throw a *TypeError* exception.
-      1. Let _newBuffer_ be ? <emu-meta suppress-effects="user-code">AllocateArrayBuffer(%ArrayBuffer%, _newByteLength_, _newMaxByteLength_)</emu-meta>.
-      1. Let _copyLength_ be min(_newByteLength_, _arrayBuffer_.[[ArrayBufferByteLength]]).
-      1. Let _fromBlock_ be _arrayBuffer_.[[ArrayBufferData]].
-      1. Let _toBlock_ be _newBuffer_.[[ArrayBufferData]].
-      1. Perform CopyDataBlockBytes(_toBlock_, 0, _fromBlock_, 0, _copyLength_).
-      1. NOTE: Neither creation of the new Data Block nor copying from the old Data Block are observable. Implementations may implement this method as a zero-copy move or a `realloc`.
-      1. Perform ! DetachArrayBuffer(_arrayBuffer_).
-      1. Return _newBuffer_.
-    </emu-alg>
+      <emu-alg>
+        1. Perform ? RequireInternalSlot(_arrayBuffer_, [[ArrayBufferData]]).
+        1. If IsSharedArrayBuffer(_arrayBuffer_) is *true*, throw a *TypeError* exception.
+        1. If _newLength_ is *undefined*, then
+          1. Let _newByteLength_ be _arrayBuffer_.[[ArrayBufferByteLength]].
+        1. Else,
+          1. Let _newByteLength_ be ? ToIndex(_newLength_).
+        1. If IsDetachedBuffer(_arrayBuffer_) is *true*, throw a *TypeError* exception.
+        1. If _preserveResizability_ is ~preserve-resizability~ and IsResizableArrayBuffer(_arrayBuffer_) is *true*, then
+          1. Let _newMaxByteLength_ be _arrayBuffer_.[[ArrayBufferMaxByteLength]].
+        1. Else,
+          1. Let _newMaxByteLength_ be ~empty~.
+        1. If _arrayBuffer_.[[ArrayBufferDetachKey]] is not *undefined*, throw a *TypeError* exception.
+        1. Let _newBuffer_ be ? <emu-meta suppress-effects="user-code">AllocateArrayBuffer(%ArrayBuffer%, _newByteLength_, _newMaxByteLength_)</emu-meta>.
+        1. Let _copyLength_ be min(_newByteLength_, _arrayBuffer_.[[ArrayBufferByteLength]]).
+        1. Let _fromBlock_ be _arrayBuffer_.[[ArrayBufferData]].
+        1. Let _toBlock_ be _newBuffer_.[[ArrayBufferData]].
+        1. Perform CopyDataBlockBytes(_toBlock_, 0, _fromBlock_, 0, _copyLength_).
+        1. NOTE: Neither creation of the new Data Block nor copying from the old Data Block are observable. Implementations may implement this method as a zero-copy move or a `realloc`.
+        1. Perform ! DetachArrayBuffer(_arrayBuffer_).
+        1. Return _newBuffer_.
+      </emu-alg>
     </ins>
   </emu-clause>
 </emu-clause>
