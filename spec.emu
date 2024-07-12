@@ -18,11 +18,13 @@ markEffects: true
 
   <emu-clause id="sec-arraybuffercopyanddetach" type="abstract operation" number="14">
     <h1>
-      <ins>ArrayBufferCopyAndDetach (
+      <ins>
+      ArrayBufferCopyAndDetach (
         _arrayBuffer_: an ECMAScript language value,
         _newLength_: an ECMAScript language value,
         _preserveResizability_: ~preserve-resizability~ or ~fixed-length~,
-      ): either a normal completion containing an ArrayBuffer or a throw completion</ins>
+      ): either a normal completion containing an ArrayBuffer or a throw completion
+      </ins>
     </h1>
     <dl class="header">
     </dl>
