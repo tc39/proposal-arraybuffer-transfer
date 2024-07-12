@@ -6,7 +6,7 @@
 <pre class="metadata">
 title: ArrayBuffer transfer
 status: proposal
-stage: 3
+stage: 4
 contributors: Shu-yu Guo, Jordan Harband, Yagiz Nizipli
 location: https://github.com/tc39/proposal-arraybuffer-transfer
 copyright: false

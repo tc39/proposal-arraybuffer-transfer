@@ -1,6 +1,6 @@
 # `ArrayBuffer.prototype.transfer` and friends
 
-Stage: 3
+Stage: 4 ([included in ES2024](https://github.com/tc39/ecma262/pull/3175)). **This repository is no longer active.**
 
 Author: Shu-yu Guo (@syg)
 
